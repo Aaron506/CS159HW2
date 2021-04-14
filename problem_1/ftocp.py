@@ -79,11 +79,15 @@ class FTOCP(object):
 
 		return self.uPred[0,:]
 
-	def uGuessUpdate(self):
+    # Aaron modified, if warmStart is True then use past trajectory for current
+    # guess, else start as all zeros
+	def uGuessUpdate(self, warmStart=False):
 		uPred = self.uPred
 		for i in range(0, self.N-1):
-			self.uGuess[i] = ...
-		self.uGuess[-1] = ...
+			# Aaron added, startZero = False equivalent to 0, True equivalent 1
+			self.uGuess[i] = warmStart * uPred[min(i+1, self.N-1)]
+		# Aaron: Did slightly different formatting, not needed
+        # self.uGuess[-1] = ...
 
 	def unpackSolution(self, x0):
 		# Extract predicted state and predicted input trajectories
@@ -139,8 +143,12 @@ class FTOCP(object):
 		
 		goal = self.goal
 		# Hint: First construct a vector z_{goal} using the goal state and then leverage the matrix H
-		...
-		q    = ...
+		
+        # Aaron added ###
+		zGoal = np.hstack([self.goal]*self.N + [np.zeros(self.d * self.N)])
+		q = -2 * H @ zGoal
+
+        ######
 
 		if self.printLevel >= 2:
 			print("H: ")
@@ -163,8 +171,10 @@ class FTOCP(object):
 			if k == 0:
 				E_eq[0:self.n, :] = A
 			else:
-				Gx[...:..., ...:...] = -A
-			Gu[...:..., ...:...] = -B
+                # Aaron added, should be on the subdiagonal
+				Gx[k*self.n:(k+1)*self.n, (k-1)*self.n:k*self.n] = -A
+			# Aaron added, should be on the diagonal
+			Gu[k*self.n:(k+1)*self.n, k*self.d:(k+1)*self.d] = -B
 			self.C = np.append(self.C, C)
 
 		G_eq = np.hstack((Gx, Gu))
