@@ -13,7 +13,7 @@ A = np.array([[1.2, 1],
 B = np.array([[0], 
 			  [1]]);
 n = 2; d = 1;
-x0      = np.array([13,-5.5])   # initial condition
+x0      = np.array([13, -5.5])   # initial condition
 sys     = system(A, B, x0)
 maxTime = 25
 N       = 3
@@ -35,7 +35,7 @@ bu = np.array([1]*2)
 # Hint: the terminal set is X_f =\{x | F_f x <= b_f\}
 Ff = np.vstack((np.eye(n), -np.eye(n)))
 bf = np.array([0, 0]*2)
-Qf = np.zeros((n,n))
+Qf = np.full((n,n), 10) #does not matter with X_0
 
 printLevel = 1
 mpcApproach1 = FTOCP(N, A, B, Q, R, Qf, Fx, bx, Fu, bu, Ff, bf, printLevel)
@@ -76,7 +76,7 @@ plt.show()
 P, K, Acl = dlqr(A, B, Q, R)
 Ftot = np.vstack((Fx, np.dot(Fu, -K)))
 btot = np.hstack((bx, bu ))
-Qf = np.zeros((n,n))
+Qf = P
 
 poli = polytope(Ftot, btot)
 F, b = poli.computeO_inf(Acl) # Hint: this function returns F and b so that compute O_inf = \{ x | Fx <= b\}
